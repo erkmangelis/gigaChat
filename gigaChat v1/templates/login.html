@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    | Login
+{% endblock %}
+
+{% block main %}
+    <div class="wrapper">
+        <div id="login">
+            <div class="title">
+                LOGIN
+            </div>
+            {% if get_flashed_messages() %}
+                <div class="warning">
+                    {{ get_flashed_messages() | join(" ") }}
+                </div>
+            {% endif %}
+            <form class="login-form" action="/login" method="post">
+                <div class="form-group">
+                    <label for="username">USERNAME</label>
+                    <input type="text" autofocus  class="form-control {% if status=='usr' %}{{status}}{% endif %}{% if status=='usrpass' %}{{status}}{% endif %}" id="usurname" name="username" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input type="password" class="form-control {% if status=='pass' %}{{status}}{% endif %}{% if status=='usrpass' %}{{status}}{% endif %}" id="password" name="password" placeholder="Password">
+                </div>
+                <div class="button">
+                    <button type="submit" class="btn" name="send">LOG IN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

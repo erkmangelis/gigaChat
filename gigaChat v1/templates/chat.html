@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    <script>
+        socket = io()
+        socket.connect('localhost:5000')
+
+        socket.on('message', text => {
+            loadMessageHistory(text);
+            getMessage(text);
+            onlineList(text);
+            console.log(text['online']);
+        });
+
+        // Sending Message
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            if (message != '') {
+                socket.emit('message', message);
+                document.getElementById('message').focus();
+                document.getElementById('message').value = "";
+            }
+        };
+
+        // Receiving message
+        function getMessage(text) {
+            const time = document.createElement('div');
+            time.id = 'time';
+            time.innerHTML = text["time"];
+            const usr = document.createElement('div');
+            usr.id = 'usrname';
+            usr.innerHTML = text["username"];
+            const msg = document.createElement('div');
+            msg.id = 'msg';
+            msg.innerHTML = text["message"];
+            
+            const container = document.createElement('div');
+            container.id = 'message-data';
+            container.appendChild(time);
+            container.appendChild(usr);
+            container.appendChild(msg);
+
+            document.getElementById('message-box').appendChild(container);
+            document.getElementById('message-box').scrollBy(0,1000);
+        };
+
+        // Chat History
+        function loadMessageHistory(text) {
+            if (text["username"] == "SYSTEM:") {
+                if (text["sender"] == document.getElementsByTagName('main')[0].id) {
+                    const history = text["history"];
+                    for (messageData of history) {
+                        getMessage(messageData);
+                        document.getElementById('message-box').scrollBy(0,1000);
+                    };
+                };
+            };
+        };
+
+        // Online list
+        function onlineList(text) {
+            var count = 0;
+            const x = document.getElementById('online-list');
+            while (x.firstChild) {
+                x.firstChild.remove();
+            };
+            const onlines = text["online"];
+            for (online of onlines) {
+                count += 1;
+                const item = document.createElement('div');
+                item.innerHTML = online;
+                item.id = 'online-user'
+                document.getElementById('online-list').appendChild(item);
+            };
+            
+            document.getElementById('online').style.minHeight = count*60 + "px";
+        };
+    </script>
+{% endblock %}
+
+{% block main %}
+    <main id="{{ susername }}">
+        <div class="container">
+            <div class="chat">
+                <div id="message-box">
+                </div>
+                <div class="text-box">
+                    <input type="text" id="message" placeholder="Type a message" maxlength="80" autofocus onKeyDown="if(event.keyCode==13) sendMessage();">
+                    <button id="send" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+            <div id="online">
+                <div class="online-title">Online Users</div>
+                <div id="online-list">
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
